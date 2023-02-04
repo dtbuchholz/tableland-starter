@@ -8,8 +8,6 @@ A basic React app with a browser wallet (or local private key) connection to Tab
 
 This tutorial walks through the basics of using the [Tableland SDK](https://github.com/tablelandnetwork/js-tableland). It creates a very basic [React](https://reactjs.org/) app where a user will first connect their wallet. Then, they'll be able to create a table (minted to their address), write to the table, and read data from the table. The table's name and table data get rendered in the UI, and there are some special SQL features demonstrated as well. Lastly, the [`local-tableland`](https://github.com/tablelandnetwork/local-tableland) is leveraged to make it easy to develop locally with both a Tableland and [Hardhat](https://hardhat.org/) node.
 
-One of the key pieces to understand is the `Database` API. Every query in Tableland runs through the same API, where you can pass create statements, writes, and reads to `Database.prepare(...)` and then execute them. An execution should come with a account singer for on-chain transactions (create, writes) but need not be passed to `Database` for reads. Each query execution comes with a `metadata`, `results`, and `success` in its response. Only read queries make use of `results`, but all queries will have `metadata` and `success` returned.
-
 ### Project structure
 
 The table schema is hardcoded as the following: `id integer primary key, name text, block text, tx text`. What's important to understand is that
@@ -28,17 +26,27 @@ This app is pretty straightforward and uses the boilerplate code from `npx creat
 - `write()`: Write to the table with form input value; this only mutates a single `name` column, and the others (`id`, `block`, and `tx`) are automatically updated by the database using auto-increment functionality or magic functions.
 - `read()`: Use a read-only `Database` connection (i.e., you don't need a signer to read) to retrieve table data.
 
-All application code is placed in `App.tsx` to keep things simple, and some basic styles are included in `App.css`. ANd for more implementation details, comments are also provided throughout the code.
+One of the key pieces to understand is the `Database` API. Every query in Tableland runs through the same API, where you can pass create, writes, and read statements to `Database.prepare(...)` and then execute them. Basically, you can use the `Database` API for standard creates, writes, and reads. An execution should come with a account singer for on-chain transactions (create, writes) but need not be passed to `Database` for reads. Each query execution comes with a `metadata`, `results`, and `success` in its response. Only read queries make use of `results`, but all queries will have `metadata` and `success` returned.
+
+In addition to `Database`, there also exists a `Validator` and `Registry` API. Both of these are used to show how to connect to a validator to fetch data, such as a table's metadata / schema, or make a direct `TablelandTables` registry smart contract call for retrieving table ownership data. For example, if you want to implement something like polling to then update your UI with a read query, the `Validator` API comes in handy (with [`pollForReceiptByTransactionHash`](https://github.com/tablelandnetwork/js-tableland/blob/e39e4c0fe488e2afa170fbf33c1323a13222e725/src/validator/index.ts#L118)).
+
+All application code is placed in `App.tsx` to not introduce a bunch of specialized components and whatnot, and some basic styles are included in `App.css`. And for more implementation details, detailed comments are also provided throughout the code.
 
 ## Usage
 
-First, install all dependencies with `npm install`. Then, in the project directory, you should:
+First, clone this repo and install all dependencies with `npm install`. Then, in the project directory, you should:
 
 1. Start a local Tableland node (available at [http://localhost:8080](http://localhost:8080)): `npx local-tableland`
 2. In a separate window, start the React app (opens in [http://localhost:3000](http://localhost:3000)): `npm start`
 
-If you're interested in directly querying the local Tableland node, you can also make API requests directly in your browser to [http://localhost:8080](http://localhost:8080), such as the auto-generated healthbot table or the table you create in the app itself. Just pass a read query to the `/query` endpoint, such as `SELECT * FROM healthbot_31337_1`:
+If you're interested in directly querying the local Tableland node, you can also make API requests directly in your browser to [http://localhost:8080](http://localhost:8080), such as the auto-generated healthbot table or the table you create in the app itself. Just pass a read query to the `/query` endpoint, like `SELECT * FROM healthbot_31337_1`:
 
 ```
 http://localhost:8080/query?s=select%20*%20from%20healthbot_31337_1
+```
+
+If you're starting from scratch and simply following along, the only dependencies needed are the [Tableland SDK](https://github.com/tablelandnetwork/js-tableland) and [`local-tableland`](https://github.com/tablelandnetwork/local-tableland):
+
+```
+npm i @tableland/sdk@4.0.0-pre.6 @tableland/local@1.0.0-pre.2`
 ```
