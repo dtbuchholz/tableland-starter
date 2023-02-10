@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@tableland/local": "^1.0.0-pre.2",
-    "@tableland/sdk": "^4.0.0-pre.6",
+    "@tableland/sdk": "^4.0.0-pre.8",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
